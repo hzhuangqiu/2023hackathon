@@ -17,3 +17,5 @@
 * [oneAPI-samples: Samples for Intel® oneAPI Toolkits](https://github.com/oneapi-src/oneAPI-samples)
   
   * 使用 oneAPI 编写的各种样例代码
+
+* [相关模型及教程](https://github.com/Wei-Welles-Du/AI-Hackathon/tree/master/innovation-hackathon/machine-learning-track)
