@@ -33,8 +33,7 @@ if __name__ == "__main__":
     data["Color"] = encoder.fit_transform(data["Color"].astype(str))
     data["Month"] = encoder.fit_transform(data["Month"].astype(str))
 
-    for feature in data.columns:
-        data[feature].fillna(data[feature].mean(), inplace=True)
+    data.fillna(data.mean(), inplace=True)
     print("Preprocessing finished")
 
     data = data.drop(["Index", "Month", "Day", "Time of Day", "Source"], axis=1)
@@ -61,7 +60,7 @@ if __name__ == "__main__":
     begin = time.time()
     lgbm_model_prediction = lgbm_model.predict(X_test)
     end = time.time()
-    print(f"Inference time (Normal): {(end - begin) / 6.0:.2f}s")
+    print(f"Inference time (Normal): {end - begin:.2f}s")
     print(
         classification_report(
             target_test,
@@ -80,7 +79,7 @@ if __name__ == "__main__":
         .prediction
     )
     end = time.time()
-    print(f"Inference time (oneAPI): {(end - begin) / 6.0:.2f}s")
+    print(f"Inference time (oneAPI): {end - begin:.2f}s")
     print(
         classification_report(
             target_test,
