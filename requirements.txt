@@ -2,3 +2,4 @@ daal4py
 lightgbm
 modin[dask]
 scikit-learn-intelex
+optuna
