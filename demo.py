@@ -1,8 +1,4 @@
-import modin.pandas as pd
-from modin.config import Engine, StorageFormat
-
-Engine.put("dask")
-StorageFormat.put("pandas")
+import pandas as pd
 
 from sklearnex import patch_sklearn
 
@@ -20,22 +16,33 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+import os
+
 if __name__ == "__main__":
-    data = pd.read_csv("dataset.csv")
-    print(f"Data shape: {data.shape}")
+    if os.path.exists("preprocessed_dataset.csv"):
+        print("Use existing preprocessed data")
+        print("Read preprocessed data...")
+        data = pd.read_csv("preprocessed_dataset.csv")
+    else:
+        print("Read raw data...")
+        data = pd.read_csv("dataset.csv")
+        print(f"Start preprocessing (data shape: {data.shape})...")
 
-    data["Source"].fillna("NA", inplace=True)
-    data["Color"].fillna("NA", inplace=True)
-    data["Month"].fillna("NA", inplace=True)
+        data["Source"].fillna("NA", inplace=True)
+        data["Color"].fillna("NA", inplace=True)
+        data["Month"].fillna("NA", inplace=True)
 
-    encoder = LabelEncoder()
-    data["Source"] = encoder.fit_transform(data["Source"].astype(str))
-    data["Color"] = encoder.fit_transform(data["Color"].astype(str))
-    data["Month"] = encoder.fit_transform(data["Month"].astype(str))
+        encoder = LabelEncoder()
+        data["Source"] = encoder.fit_transform(data["Source"].astype(str))
+        data["Color"] = encoder.fit_transform(data["Color"].astype(str))
+        data["Month"] = encoder.fit_transform(data["Month"].astype(str))
 
-    data.fillna(data.mean(), inplace=True)
-    print("Preprocessing finished")
+        data.fillna(data.mean(), inplace=True)
 
+        print("Write to preprocessed_dataset.csv...")
+        data.to_csv("preprocessed_dataset.csv", index=False)
+
+    print("Split the dataset into training and testing sets...")
     data = data.drop(["Index", "Month", "Day", "Time of Day", "Source"], axis=1)
     X = data.drop("Target", axis=1)
     target = data["Target"]
@@ -44,14 +51,28 @@ if __name__ == "__main__":
     )
 
     print("Start training...")
-    lgbm_model = LGBMClassifier(verbosity=-1)
+    lgbm_model = LGBMClassifier(
+        objective="binary",
+        n_estimators=10000,
+        learning_rate=0.16806501046153502,
+        num_leaves=2280,
+        max_depth=12,
+        min_data_in_leaf=3900,
+        lambda_l1=25,
+        lambda_l2=60,
+        min_gain_to_split=0.3443081671621193,
+        bagging_fraction=0.9,
+        bagging_freq=1,
+        feature_fraction=0.9,
+        verbosity=-1,
+    )
     begin = time.time()
     lgbm_model.fit(
         X_train,
         target_train,
         eval_set=[(X_test, target_test)],
-        early_stopping_rounds=30,
-        eval_metric="f1",
+        eval_metric="binary_logloss",
+        early_stopping_rounds=100,
     )
     end = time.time()
     print(f"Elapsed time: {end - begin:.2f}s")
@@ -69,6 +90,7 @@ if __name__ == "__main__":
         )
     )
 
+    print("Convert the trained model to oneAPI...")
     daal_lgbm_model = d4p.get_gbt_model_from_lightgbm(lgbm_model.booster_)
 
     print("Start inferring (oneAPI)...")
