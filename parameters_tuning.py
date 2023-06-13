@@ -57,8 +57,8 @@ def objective(trial, X, y):
         "num_leaves": trial.suggest_int("num_leaves", 20, 3000, step=20),
         "max_depth": trial.suggest_int("max_depth", 3, 12),
         "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 200, 10000, step=100),
-        "lambda_l1": trial.suggest_int("lambda_l1", 0, 100, step=5),
-        "lambda_l2": trial.suggest_int("lambda_l2", 0, 100, step=5),
+        "reg_alpha": trial.suggest_float("reg_alpha", 0.01, 1000, log=True),
+        "reg_lambda": trial.suggest_float("reg_lambda", 0.01, 1000, log=True),
         "min_gain_to_split": trial.suggest_float("min_gain_to_split", 0, 15),
         "bagging_fraction": trial.suggest_float(
             "bagging_fraction", 0.2, 0.95, step=0.1
@@ -76,7 +76,7 @@ def objective(trial, X, y):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        model = LGBMClassifier(objective="binary", **param_grid)
+        model = LGBMClassifier(objective="binary", verbosity=-1, **param_grid)
         model.fit(
             X_train,
             y_train,
@@ -98,6 +98,7 @@ if __name__ == "__main__":
     X = data.drop("Target", axis=1)
     y = data["Target"]
 
+    print("Start hyperparameter tuning...")
     study = optuna.create_study(direction="minimize", study_name="LGBM Classifier")
     func = lambda trial: objective(trial, X, y)
     study.optimize(func, n_trials=100)
