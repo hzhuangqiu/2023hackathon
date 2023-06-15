@@ -32,7 +32,7 @@ g++ inference.cpp \
     -lonedal_core \
     -lonedal_thread \
     -Wno-deprecated-declarations \
-    -o inference \
+    -o inference
 ./inference
 ```
 

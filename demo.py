@@ -18,13 +18,14 @@ warnings.filterwarnings("ignore")
 
 import os
 
-if __name__ == "__main__":
-    if os.path.exists("preprocessed_dataset.csv"):
-        print("Use existing preprocessed data")
-        print("Read preprocessed data...")
-        data = pd.read_csv("preprocessed_dataset.csv")
+
+def preprocess_data(raw_data_path: str, dest_data_path: str) -> pd.DataFrame:
+    if os.path.exists(dest_data_path):
+        print(f"Use existing preprocessed data at {dest_data_path}.")
+        print(f"Read preprocessed data from {dest_data_path}...")
+        return pd.read_csv(dest_data_path)
     else:
-        print("Read raw data...")
+        print(f"Read raw data from {raw_data_path}")
         data = pd.read_csv("dataset.csv")
         print(f"Start preprocessing (data shape: {data.shape})...")
 
@@ -39,8 +40,32 @@ if __name__ == "__main__":
 
         data.fillna(data.mean(), inplace=True)
 
-        print("Write to preprocessed_dataset.csv...")
-        data.to_csv("preprocessed_dataset.csv", index=False)
+        print(f"Write to {dest_data_path}...")
+        data.to_csv(dest_data_path, index=False)
+        return data
+
+
+def save_model(model, file="native_binary.txt"):
+    if os.path.exists(file):
+        print(f"The model file {file} already exists, nothing to do.")
+    else:
+        print(f"Write the daal4py model to {file} (required by inference.cpp)")
+        daal_buff = model.__getstate__()
+        with open(file, "wb") as f:
+            f.write(daal_buff)
+
+
+def save_test_data(X_test, y_test, file="test_dataset.csv"):
+    if os.path.exists(file):
+        print(f"The test data {file} already exists, nothing to do.")
+    else:
+        print(f"Write test data to {file} (required by inference.cpp)")
+        X_test["Target"] = y_test
+        X_test.to_csv(file, header=False, index=False)
+
+
+if __name__ == "__main__":
+    data = preprocess_data("dataset.csv", "preprocessed_dataset.csv")
 
     print("Split the dataset into training and testing sets...")
     data = data.drop(["Index", "Month", "Day", "Time of Day", "Source"], axis=1)
@@ -109,3 +134,5 @@ if __name__ == "__main__":
             target_names=["Safe to drink", "Not safe to drink"],
         )
     )
+    save_model(daal_lgbm_model)
+    save_test_data(X_test, target_test)
