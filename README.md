@@ -8,7 +8,7 @@
 
 [LOG.md](./LOG.md)
 
-## Run demo
+## Run demo (Python)
 
 ```shell
 # Download dataset
@@ -19,3 +19,21 @@ pip3 install -r requirements.txt
 # Run demo
 python3 demo.py
 ```
+
+## Run inference demo (C++)
+
+```shell
+# Make sure the environment variable DALROOT is set correctly.
+# (e.g. run the script /opt/intel/oneapi/setvars.sh)
+g++ inference.cpp \
+    -O2 -std=c++17 \
+    -I $DALROOT/include \
+    -L $DALROOT/lib \
+    -lonedal_core \
+    -lonedal_thread \
+    -Wno-deprecated-declarations \
+    -o inference \
+./inference
+```
+
+Note: Before using C++ for inference, you need to run demo.py to generate the trained model (stored in `native_binary.txt`) and test data (stored in `test_dataset.csv`).
