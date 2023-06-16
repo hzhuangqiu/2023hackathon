@@ -6,7 +6,7 @@
 2. 本地运行`app.py`：`streamlit run <path of app.py> [--server.port <port_num>]`，例如`streamlit run 2023hackathon/streamlit_app/app.py --server.port 8501`
     1. 如果在`VSCode`中运行，可以在`端口`中添加转发规则`<port_num>`，将服务器上的`<port_num>`端口转发到`localhost:<port_num>`端口，从而能够在本地浏览器中查看应用
 
-## 实现功能
+## 功能说明
 
 1. 经过讨论，由于训练需要上传的数据量过大，因此目前仅支持推理(后续如果有时间也可以支持微调)
 2. 模型可以选择`LGBM`、`XGBoost`、`CatBoost`三种，通过`<model_name>.pkl`载入内存
