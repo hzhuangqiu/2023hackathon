@@ -36,4 +36,4 @@ g++ inference.cpp \
 ./inference
 ```
 
-Note: Before using C++ for inference, you need to run demo.py to generate the trained model (stored in `native_binary.txt`) and test data (stored in `test_dataset.csv`).
+Note: Before using C++ for inference, you need to run demo.py to generate the trained models (stored in `native_binary_modelname.txt`) and test data (stored in `test_dataset.csv`).
