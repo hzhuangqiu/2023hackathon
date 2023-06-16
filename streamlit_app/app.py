@@ -121,7 +121,7 @@ def output(input_data, predict_result, predict_time, output_mode='Batched'):
     output_info_col[1].download_button(
         label="Download data as CSV",
         data=csv,
-        file_name='Output.csv',
+        file_name='output.csv',
         mime='text/csv')
 
     with st.expander("🔎 Click here to view details"):
