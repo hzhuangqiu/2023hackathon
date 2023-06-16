@@ -9,11 +9,11 @@ import daal4py as d4p
 
 import sys
 import os
+import time
 
 import numpy as np
 
 parent_path = os.path.abspath(os.path.join(__file__, *(['..'] * 2)))
-sys.path.insert(0, parent_path)
 
 def not_implement_error():
     st.error('not implement yet!')
@@ -28,11 +28,13 @@ def backend_load_model(model_name):
         return None
 
 def backend_predict(model, data):
+    begin = time.time()
     prediction = model.predict(data)
+    end = time.time()
     quality_map = {0: 'Not safe to drink', 1: 'Safe to drink'}
     result = np.vectorize(quality_map.get)(prediction)
 
-    return result
+    return (end-begin)*1000, result
 
 def backend_train(model, data):
     return not_implement_error()
