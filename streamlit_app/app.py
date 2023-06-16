@@ -1,9 +1,5 @@
 import streamlit as st
 import pandas as pd
-import base64
-import pickle
-import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 from backend_wrapper import *
