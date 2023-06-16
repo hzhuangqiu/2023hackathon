@@ -70,35 +70,36 @@ def get_model(model_type: str) -> Any:
         )
     elif model_type == "xgboost":
         return XGBClassifier(
-	            max_depth=9,
-                objective="binary:logistic",
-                use_label_encoder=False,
-                eval_metric="logloss",
-                early_stopping_rounds=30,
-	            min_child_weight=6,
-	            gamma=3,
-                learning_rate=1.0,
-	            subsample=0.9955784740143707,
-	            colsample_bytree=0.8233654438141474,
-	            reg_alpha=9.85268289322318,
-	            reg_lambda=57.976004599564774,
-	            n_estimators=800,
+            max_depth=9,
+            objective="binary:logistic",
+            use_label_encoder=False,
+            eval_metric="logloss",
+            early_stopping_rounds=30,
+            min_child_weight=6,
+            gamma=3,
+            learning_rate=1.0,
+            subsample=0.9955784740143707,
+            colsample_bytree=0.8233654438141474,
+            reg_alpha=9.85268289322318,
+            reg_lambda=57.976004599564774,
+            n_estimators=800,
         )
     elif model_type == "catboost":
         return CatBoostClassifier(
-                depth=11,
-                objective="Logloss",
-                learning_rate=1.0,
-                eval_metric="Logloss",
-                early_stopping_rounds=30,
-	            n_estimators=1800,
-	            max_bin=322,
-	            min_data_in_leaf=1,
-	            l2_leaf_reg=0.4421314590378351,
-	            subsample=0.8680019204265281,
+            depth=11,
+            objective="Logloss",
+            learning_rate=1.0,
+            eval_metric="Logloss",
+            early_stopping_rounds=30,
+            n_estimators=1800,
+            max_bin=322,
+            min_data_in_leaf=1,
+            l2_leaf_reg=0.4421314590378351,
+            subsample=0.8680019204265281,
         )
     else:
         raise KeyError(f"Unknow Model Type: {mode_type}")
+
 
 def convert_to_d4p(model: Any, model_type: str) -> Any:
     if model_type == "lightgbm":
@@ -109,6 +110,7 @@ def convert_to_d4p(model: Any, model_type: str) -> Any:
         return d4p.get_gbt_model_from_catboost(model)
     else:
         raise KeyError(f"Unknow Model Type: {mode_type}")
+
 
 def save_model(model, file="native_binary.txt"):
     if os.path.exists(file):

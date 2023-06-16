@@ -11,7 +11,11 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import log_loss
 
 import optuna
-from optuna.integration import LightGBMPruningCallback, XGBoostPruningCallback, CatBoostPruningCallback
+from optuna.integration import (
+    LightGBMPruningCallback,
+    XGBoostPruningCallback,
+    CatBoostPruningCallback,
+)
 
 from lightgbm import LGBMClassifier
 from xgboost import XGBClassifier
@@ -115,7 +119,11 @@ def objective_xgboost(trial, X, y):
         y_train, y_test = y[train_idx], y[test_idx]
 
         model = XGBClassifier(
-            objective="binary:logistic", verbosity=0, learning_rate=1.0, use_label_encoder=False, **param_grid
+            objective="binary:logistic",
+            verbosity=0,
+            learning_rate=1.0,
+            use_label_encoder=False,
+            **param_grid,
         )
         model.fit(
             X_train,
@@ -148,7 +156,9 @@ def objective_catboost(trial, X, y):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        model = CatBoostClassifier(objective="Logloss", learning_rate=1.0, eval_metric="Logloss", **param_grid)
+        model = CatBoostClassifier(
+            objective="Logloss", learning_rate=1.0, eval_metric="Logloss", **param_grid
+        )
         model.fit(
             X_train,
             y_train,
