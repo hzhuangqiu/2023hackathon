@@ -17,24 +17,24 @@ value_groups = {
 
 # Define default values
 default_values = {
-    'pH': 7.0,
-    'Iron': 0.0,
-    'Nitrate': 0.0,
-    'Chloride': 0.0,
-    'Lead': 0.0,
-    'Zinc': 0.0,
-    'Color': 0,
-    'Turbidity': 0.0,
-    'Fluoride': 0.0,
-    'Copper': 0.0,
-    'Odor': 0.0,
-    'Sulfate': 0.0,
-    'Conductivity': 0.0,
-    'Chlorine': 0.0,
-    'Manganese': 0.0,
-    'Total Dissolved Solids': 0.0,
-    'Water Temperature': 0.0,
-    'Air Temperature': 0.0
+    'pH': 5.443761984,
+    'Iron': 0.020105859,
+    'Nitrate': 3.816993832,
+    'Chloride': 230.9956297,
+    'Lead': 5.29E-76,
+    'Zinc': 0.528279714,
+    'Color': 2,
+    'Turbidity': 0.31995564,
+    'Fluoride': 0.423423412,
+    'Copper': 0.431587631,
+    'Odor': 3.414619167,
+    'Sulfate': 275.7021072,
+    'Conductivity': 990.2012087,
+    'Chlorine': 3.560224335,
+    'Manganese': 0.070079894,
+    'Total Dissolved Solids': 570.0540943,
+    'Water Temperature': 11.64346697,
+    'Air Temperature': 44.89132961
 }
 
 def read_csv(file):
@@ -120,13 +120,12 @@ def output(input_data, predict_result, predict_time, output_mode='Batched'):
         file_name='output.csv',
         mime='text/csv')
 
-    with st.expander("Click here to view details"):
-        st.table(combined_df) 
-
     if output_mode == 'Batched':
+        with st.expander("Click here to view details"):
+            st.table(combined_df)
         output_overview(combined_df)
     elif output_mode == 'Single':
-        return
+        st.table(combined_df)
     else:
         return not_implement_error()
 
@@ -186,13 +185,16 @@ def user_predict():
         sample_csv_downloader()
         data = csv_uploader()
     elif predict_mode == 'Single':
+        st.write('the default value is a list of indicators of water which is safe to drink')
         with st.form('single line input'):
             input_data = {}
             for group_key, group_val in value_groups.items():
                 columns = st.columns(len(group_val))
                 for idx, col in enumerate(columns):
                     input_name = group_val[idx]
-                    input_data[input_name] = [float(col.text_input(input_name, default_values[input_name]))]
+                    default_input = default_values[input_name]
+                    display_format = '%.3e' if 'e' in str(default_input) else '%.3f'
+                    input_data[input_name] = [float(col.text_input(input_name, display_format % default_input))]
             submitted = st.form_submit_button('Submit')
             if submitted:
                 data = normalize_data(input_data)
