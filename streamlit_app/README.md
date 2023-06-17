@@ -17,4 +17,4 @@
     1. 单实例推理由用户手动输入数据
     2. 批量推理时读取用户上传的`CSV`文件作为输入(默认不超过`200MB`)，模板文件可以在界面上下载
     3. [test_data.csv](./test_data.csv)中包含`100`条数据，可以使用它作为批量推理的输入。该数据使用[test_data_gen.py](./test_data_gen.py)生成
-5. 目前仅支持本地运行，正在尝试利用<https://share.streamlit.io/>进行在线部署
+5. 代码已经利用<https://github.com/hzhuangqiu/2023hackathon>与<https://share.streamlit.io/>在线部署，可以访问<https://hzhuangqiu-2023hackathon-streamlit-appapp-d4sadw.streamlit.app/>进行测试
