@@ -129,6 +129,7 @@ def output(input_data, predict_result, predict_time, output_mode='Batched'):
     else:
         return not_implement_error()
 
+@st.cache_data
 def csv_uploader():
     data = []
     with st.form('single line input'):
@@ -154,6 +155,7 @@ def normalize_data(input_data):
     data_df = data_df.drop("Target", axis=1, errors='ignore')
     return data_df
 
+@st.cache_data
 def sample_csv_downloader():
     sample_template = pd.DataFrame(default_values, index=[0])
     template_content = convert_df_to_csv(sample_template)
