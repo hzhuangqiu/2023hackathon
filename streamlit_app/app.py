@@ -49,7 +49,7 @@ def output_overview(data):
     st.header("Data Overview")
 
     st.subheader("1. Output Overview")
-    piechartexpander = st.expander("🔎 Click here to view the graph")
+    piechartexpander = st.expander("Click here to view the graph")
     with piechartexpander :
         quality_counts = data['Quality'].value_counts()
         fig, ax = plt.subplots()
@@ -63,43 +63,43 @@ def output_overview(data):
     mineral_elements_overview_col_2 = st.columns(2)
 
     water_properties_overview_col[0].subheader("2.1. Distribution of water properties group 1")
-    propertyexpander = st.expander("🔎 Click here to view the graph")
+    propertyexpander = st.expander("Click here to view the graph")
     with propertyexpander:
         prop_data=data[['pH', 'Color', 'Odor', 'Turbidity']]
         water_properties_overview_col[0].area_chart(prop_data)
 
     water_properties_overview_col[1].subheader("2.2. Distribution of water properties group 2")
-    propertyexpander = st.expander("🔎 Click here to view the graph")
+    propertyexpander = st.expander("Click here to view the graph")
     with propertyexpander:
         prop_data=data[['Conductivity', 'Total Dissolved Solids']]
         water_properties_overview_col[1].area_chart(prop_data)
 
     mineral_elements_overview_col_1[0].subheader("3.1. Distribution of mineral elements in water")
-    distributionexpander = st.expander("🔎 Click here to view the graph")
+    distributionexpander = st.expander("Click here to view the graph")
     with distributionexpander:
         chart_data=data[['Chloride', 'Sulfate']]
         mineral_elements_overview_col_1[0].bar_chart(chart_data)
 
     mineral_elements_overview_col_1[1].subheader("3.2. Distribution of mineral elements in water")
-    distributionexpander = st.expander("🔎 Click here to view the graph")
+    distributionexpander = st.expander("Click here to view the graph")
     with distributionexpander:
         chart_data=data[['Nitrate', 'Zinc', 'Chlorine']]
         mineral_elements_overview_col_1[1].bar_chart(chart_data)
 
     mineral_elements_overview_col_2[0].subheader("3.3. Distribution of mineral elements in water")
-    distributionexpander = st.expander("🔎 Click here to view the graph")
+    distributionexpander = st.expander("Click here to view the graph")
     with distributionexpander:
         chart_data=data[['Iron', 'Fluoride', 'Copper']]
         mineral_elements_overview_col_2[0].bar_chart(chart_data)
 
     mineral_elements_overview_col_2[1].subheader("3.4. Distribution of mineral elements in water")
-    distributionexpander = st.expander("🔎 Click here to view the graph")
+    distributionexpander = st.expander("Click here to view the graph")
     with distributionexpander:
         chart_data=data[['Lead', 'Manganese']]
         mineral_elements_overview_col_2[1].bar_chart(chart_data)
 
     st.subheader("4. Temperature Distribution")
-    tempexpander = st.expander("🔎 Click here to view the graph")
+    tempexpander = st.expander("Click here to view the graph")
     with tempexpander :
         prop_data=data[['Air Temperature', 'Water Temperature']]
         st.area_chart(prop_data)
@@ -110,7 +110,7 @@ def output(input_data, predict_result, predict_time, output_mode='Batched'):
     quality_df = pd.DataFrame({'Quality': predict_result})
     combined_df = pd.concat([quality_df, input_df], axis=1)
     
-    st.subheader("Output 💧")
+    st.subheader("Output")
     csv = convert_df_to_csv(combined_df)
     output_info_col = st.columns(3)
     output_info_col[0].write("Predict time: %.3f ms" % predict_time)
@@ -120,7 +120,7 @@ def output(input_data, predict_result, predict_time, output_mode='Batched'):
         file_name='output.csv',
         mime='text/csv')
 
-    with st.expander("🔎 Click here to view details"):
+    with st.expander("Click here to view details"):
         st.table(combined_df) 
 
     if output_mode == 'Batched':
@@ -141,9 +141,13 @@ def csv_uploader():
     return data
 
 def user_choose_model():
-    model_name = st.selectbox('Choose your model', ('LGBM', 'XGBoost', 'CatBoost'))
-    model = backend_load_model(model_name)
-    return model
+    model_metadata_choose_col = st.columns(2)
+    model_backend_map = {'Sklearn': 'Sklearn', 'Intel oneAPI daal4py': 'oneAPI'}
+    model_name = model_metadata_choose_col[0].selectbox('Choose your model', ('LGBM', 'XGBoost', 'CatBoost'))
+    model_backend_choice = model_metadata_choose_col[1].selectbox('Choose your model backend', model_backend_map.keys())
+    model_backend = model_backend_map[model_backend_choice]
+    model = backend_load_model(model_name, model_backend)
+    return model, model_backend
 
 def normalize_data(input_data):
     data_df = pd.DataFrame(input_data)
@@ -170,7 +174,7 @@ def user_train():
     return
 
 def user_predict():
-    model = user_choose_model()
+    model, model_backend = user_choose_model()
     if not model:
         return not_implement_error()
 
@@ -197,14 +201,14 @@ def user_predict():
     
     output_mode = predict_mode
     if len(data)>0:
-        predict_time, predict_result = backend_predict(model, data)
+        predict_time, predict_result = backend_predict(model, model_backend, data)
         output(data, predict_result, predict_time, output_mode)
     
     return
 
 # Define Streamlit app
 def main():
-    st.title('💧 Fresh Water Quality Predictor')
+    st.title('Fresh Water Quality Predictor')
 
     # only support predict so far
     # run_mode = st.selectbox('Choose your run mode', ('Predict', 'Train (Not Impl yet)'))
