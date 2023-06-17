@@ -115,21 +115,29 @@ def convert_to_d4p(model: Any, model_type: str) -> Any:
         raise KeyError(f"Unknow Model Type: {model_type}")
 
 
-def save_model(model, file="native_binary.txt"):
+def save_onedal_model(model, file="native_binary.txt"):
     if os.path.exists(file):
-        print(f"The model file {file} already exists, nothing to do.")
+        print(f"The oneDAL model file {file} already exists, nothing to do.")
     else:
-        print(f"Write the daal4py model to {file} (required by inference.cpp)")
+        print(f"Write the oneDAL model to {file} (required by inference.cpp)...")
         daal_buff = model.__getstate__()
         with open(file, "wb") as f:
             f.write(daal_buff)
+
+def save_model(model, file: str):
+    if os.path.exists(file):
+        print(f"The model file {file} already exists, nothing to do.")
+    else:
+        print(f"Write the model to {file}...")
+        with open(file, "wb") as f:
+            pickle.dump(model, f)
 
 
 def save_test_data(X_test, y_test, file="test_dataset.csv"):
     if os.path.exists(file):
         print(f"The test data {file} already exists, nothing to do.")
     else:
-        print(f"Write test data to {file} (required by inference.cpp)")
+        print(f"Write test data to {file} (required by inference.cpp)...")
         X_test["Target"] = y_test
         X_test.to_csv(file, header=False, index=False)
 
@@ -170,14 +178,10 @@ if __name__ == "__main__":
             )
         )
 
-        # with open(model_name_map[model_type]+'.pkl', 'wb') as f:
-        #     pickle.dump(model, f)
+        save_model(model, model_name_map[model_type] + ".pkl")
 
         print("Convert the trained model to oneAPI...")
         daal_model = convert_to_d4p(model, model_type)
-
-        # with open(model_name_map[model_type]+'_oneAPI.pkl', 'wb') as f:
-        #     pickle.dump(daal_model, f)
 
         print(f"Start inferring ({model_type} && oneAPI)...")
         begin = time.time()
@@ -195,6 +199,7 @@ if __name__ == "__main__":
                 target_names=["Safe to drink", "Not safe to drink"],
             )
         )
-        save_model(daal_model, file=f"native_binary_{model_type}.txt")
+        save_model(daal_model, model_name_map[model_type] + "_oneAPI.pkl")
+        save_onedal_model(daal_model, file=f"native_binary_{model_type}.txt")
 
     save_test_data(X_test, target_test)
