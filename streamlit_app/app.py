@@ -149,7 +149,7 @@ def user_choose_model():
     return model, model_backend
 
 def normalize_data(input_data):
-    data_df = pd.DataFrame(input_data)
+    data_df = pd.DataFrame(input_data, columns=default_values.keys())
     data_df = data_df.drop(["Index", "Month", "Day", "Time of Day", "Source"], axis=1, errors='ignore')
     data_df = data_df.drop("Target", axis=1, errors='ignore')
     return data_df
