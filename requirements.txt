@@ -1,5 +1,6 @@
 daal4py
 lightgbm
+catboost
 modin[dask]
 scikit-learn-intelex
 optuna
