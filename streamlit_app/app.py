@@ -1,20 +1,18 @@
 import streamlit as st
 import pandas as pd
-import base64
-import pickle
-import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 from backend_wrapper import *
 
 # Define value groups
 value_groups = {
-    'Water Properties Group 1': ['pH', 'Color', 'Conductivity'],
-    'Water Properties Group 2': ['Odor', 'Turbidity', 'Total Dissolved Solids'],
-    'Mineral Elements Group 1': ['Iron', 'Nitrate', 'Chloride', 'Lead', 'Zinc'],
-    'Mineral Elements Group 2': ['Fluoride', 'Copper', 'Sulfate', 'Chlorine', 'Manganese'],
-    'Temperature': ['Water Temperature', 'Air Temperature'],
+    'Water Properties Group 1': ['pH', 'Color', 'Odor', 'Turbidity'],
+    'Water Properties Group 2': ['Conductivity', 'Total Dissolved Solids'],
+    'Mineral Elements Group 1': ['Chloride', 'Sulfate'],
+    'Mineral Elements Group 2': ['Nitrate', 'Zinc', 'Chlorine'],
+    'Mineral Elements Group 3': ['Iron', 'Fluoride', 'Copper'],
+    'Mineral Elements Group 4': ['Lead', 'Manganese'],
+    'Temperature': ['Air Temperature', 'Water Temperature'],
 }
 
 # Define default values
@@ -39,24 +37,6 @@ default_values = {
     'Air Temperature': 0.0
 }
 
-# Predicting function
-def predict_fresh_water_quality(input_data):
-    # Initialize empty list to store results
-    results = []
-    
-    # Iterate through each row in input DataFrame
-    for index, row in input_data.iterrows():
-        # Reshape input features and make prediction
-        input_features = np.array(row).reshape(1, -1)
-        prediction = model.predict(input_features)[0]
-        
-        # Map prediction to quality label and append to results list
-        quality_labels = {0: "Bad", 1: "Good"}
-        quality = quality_labels[prediction]
-        results.append(quality)
-
-    return results
-
 def read_csv(file):
     df = pd.read_csv(file)
     return df
@@ -69,7 +49,7 @@ def output_overview(data):
     st.header("Data Overview")
 
     st.subheader("1. Output Overview")
-    piechartexpander = st.expander("🔎 Click here to view the graph")
+    piechartexpander = st.expander("Click here to view the graph")
     with piechartexpander :
         quality_counts = data['Quality'].value_counts()
         fig, ax = plt.subplots()
@@ -77,46 +57,71 @@ def output_overview(data):
         ax.set_title('Distribution of Output Results in Dataset')
         st.pyplot(fig)
 
-    st.subheader("2. Distribution of pH levels in Data")
-    phexpander = st.expander("🔎 Click here to view the graph")
-    with phexpander:
-        ph_data=data[['pH']]
-        st.line_chart(ph_data)
+    water_properties_overview_col = st.columns(2)
 
-    st.subheader("3. Distribution of mineral elements in water")
-    distributionexpander = st.expander("🔎 Click here to view the graph")
-    with distributionexpander:
-        chart_data=data[['Iron', 'Nitrate', 'Chloride', 'Lead', 'Zinc', 'Turbidity', 'Fluoride', 'Copper', 'Sulfate', 'Odor', 'Chlorine', 'Manganese']]
-        st.bar_chart(chart_data)
+    mineral_elements_overview_col_1 = st.columns(2)
+    mineral_elements_overview_col_2 = st.columns(2)
 
-    st.subheader("4. Distribution of water properties")
-    propertyexpander = st.expander("🔎 Click here to view the graph")
+    water_properties_overview_col[0].subheader("2.1. Distribution of water properties group 1")
+    propertyexpander = st.expander("Click here to view the graph")
     with propertyexpander:
-        prop_data=data[['Color','Conductivity','Total Dissolved Solids']]
+        prop_data=data[['pH', 'Color', 'Odor', 'Turbidity']]
+        water_properties_overview_col[0].area_chart(prop_data)
+
+    water_properties_overview_col[1].subheader("2.2. Distribution of water properties group 2")
+    propertyexpander = st.expander("Click here to view the graph")
+    with propertyexpander:
+        prop_data=data[['Conductivity', 'Total Dissolved Solids']]
+        water_properties_overview_col[1].area_chart(prop_data)
+
+    mineral_elements_overview_col_1[0].subheader("3.1. Distribution of mineral elements in water")
+    distributionexpander = st.expander("Click here to view the graph")
+    with distributionexpander:
+        chart_data=data[['Chloride', 'Sulfate']]
+        mineral_elements_overview_col_1[0].bar_chart(chart_data)
+
+    mineral_elements_overview_col_1[1].subheader("3.2. Distribution of mineral elements in water")
+    distributionexpander = st.expander("Click here to view the graph")
+    with distributionexpander:
+        chart_data=data[['Nitrate', 'Zinc', 'Chlorine']]
+        mineral_elements_overview_col_1[1].bar_chart(chart_data)
+
+    mineral_elements_overview_col_2[0].subheader("3.3. Distribution of mineral elements in water")
+    distributionexpander = st.expander("Click here to view the graph")
+    with distributionexpander:
+        chart_data=data[['Iron', 'Fluoride', 'Copper']]
+        mineral_elements_overview_col_2[0].bar_chart(chart_data)
+
+    mineral_elements_overview_col_2[1].subheader("3.4. Distribution of mineral elements in water")
+    distributionexpander = st.expander("Click here to view the graph")
+    with distributionexpander:
+        chart_data=data[['Lead', 'Manganese']]
+        mineral_elements_overview_col_2[1].bar_chart(chart_data)
+
+    st.subheader("4. Temperature Distribution")
+    tempexpander = st.expander("Click here to view the graph")
+    with tempexpander :
+        prop_data=data[['Air Temperature', 'Water Temperature']]
         st.area_chart(prop_data)
 
-    st.subheader("5. Temperature Distribution")
-    tempexpander = st.expander("🔎 Click here to view the graph")
-    with tempexpander :
-        prop_data=data[['Water Temperature','Air Temperature']]
-        st.line_chart(prop_data)
-
-def output(input_data, predict_result, output_mode='Batched'):
+def output(input_data, predict_result, predict_time, output_mode='Batched'):
     
     input_df = pd.DataFrame(input_data)
     quality_df = pd.DataFrame({'Quality': predict_result})
     combined_df = pd.concat([quality_df, input_df], axis=1)
     
-    st.subheader("Output 💧")
+    st.subheader("Output")
     csv = convert_df_to_csv(combined_df)
-    st.download_button(
+    output_info_col = st.columns(3)
+    output_info_col[0].write("Predict time: %.3f ms" % predict_time)
+    output_info_col[1].download_button(
         label="Download data as CSV",
         data=csv,
-        file_name='Output.csv',
+        file_name='output.csv',
         mime='text/csv')
 
-    st.write("The processed data is : ")
-    st.table(combined_df) 
+    with st.expander("Click here to view details"):
+        st.table(combined_df) 
 
     if output_mode == 'Batched':
         output_overview(combined_df)
@@ -126,38 +131,59 @@ def output(input_data, predict_result, output_mode='Batched'):
         return not_implement_error()
 
 def csv_uploader():
-    uploaded_file = st.file_uploader('Upload your CSV file', type='csv')
     data = []
-    if uploaded_file is not None:
-        data = read_csv(uploaded_file)
+    with st.form('single line input'):
+        uploaded_file = st.file_uploader('Upload your CSV file', type='csv')
+        submitted = st.form_submit_button('Submit')
+        if submitted and uploaded_file is not None:
+            data = read_csv(uploaded_file)
+            data = normalize_data(data)
     return data
 
 def user_choose_model():
-    model_name = st.selectbox('Choose your model', ('LGBM', 'XGBoost', 'CatBoost'))
-    model = backend_load_model(model_name)
-    return model
+    model_metadata_choose_col = st.columns(2)
+    model_backend_map = {'Sklearn': 'Sklearn', 'Intel oneAPI daal4py': 'oneAPI'}
+    model_name = model_metadata_choose_col[0].selectbox('Choose your model', ('LGBM', 'XGBoost', 'CatBoost'))
+    model_backend_choice = model_metadata_choose_col[1].selectbox('Choose your model backend', model_backend_map.keys())
+    model_backend = model_backend_map[model_backend_choice]
+    model = backend_load_model(model_name, model_backend)
+    return model, model_backend
 
 def normalize_data(input_data):
     data_df = pd.DataFrame(input_data)
+    data_df = data_df.drop(["Index", "Month", "Day", "Time of Day", "Source"], axis=1, errors='ignore')
+    data_df = data_df.drop("Target", axis=1, errors='ignore')
     return data_df
+
+def sample_csv_downloader():
+    sample_template = pd.DataFrame(default_values, index=[0])
+    template_content = convert_df_to_csv(sample_template)
+    st.download_button(
+        label="Click here to download the template CSV file",
+        data=template_content,
+        file_name='sample_template.csv',
+        mime='text/csv')
+    return
 
 def user_train():
     return not_implement_error()
     model = user_choose_model()
+    sample_csv_downloader()
     data = csv_uploader()
-    
     backend_train(model, data)
-    
     return
 
 def user_predict():
-    model = user_choose_model()
+    model, model_backend = user_choose_model()
     if not model:
         return not_implement_error()
+
     data = []
-    
-    predict_mode = st.radio('Choose your predict mode', ('Single', 'Batched'))
+    predict_mode_map = {'Single instance input': 'Single', 'Batched instance input (upload CSV file)': 'Batched'}
+    predict_mode_choice = st.radio('Choose your predict mode', predict_mode_map.keys())
+    predict_mode = predict_mode_map[predict_mode_choice]
     if predict_mode == 'Batched':
+        sample_csv_downloader()
         data = csv_uploader()
     elif predict_mode == 'Single':
         with st.form('single line input'):
@@ -169,60 +195,29 @@ def user_predict():
                     input_data[input_name] = [float(col.text_input(input_name, default_values[input_name]))]
             submitted = st.form_submit_button('Submit')
             if submitted:
-                print(input_data)
                 data = normalize_data(input_data)
     else:
         return not_implement_error()
     
     output_mode = predict_mode
     if len(data)>0:
-        predict_result = backend_predict(model, data)
-        output(data, predict_result, output_mode)
+        predict_time, predict_result = backend_predict(model, model_backend, data)
+        output(data, predict_result, predict_time, output_mode)
     
     return
 
 # Define Streamlit app
 def main():
-    st.title('💧 Fresh Water Quality Detector (FWD)')
+    st.title('Fresh Water Quality Predictor')
 
-    run_mode = st.selectbox('Choose your run mode', ('Predict', 'Train (Not Impl yet)'))
+    # only support predict so far
+    # run_mode = st.selectbox('Choose your run mode', ('Predict', 'Train (Not Impl yet)'))
+    run_mode = 'Predict'
     
     if run_mode == 'Predict':
         user_predict()
     else:
         return not_implement_error()
-   
-#     # Display sample template for user to download
-#     sample_template = pd.DataFrame(default_values, index=[0])
-#      # Converting to CSV as downloadable button
-#     template_content = convert_df(sample_template)
-#     st.download_button(
-#     label="Click here to download the template file",
-#     data=template_content,
-#     file_name='Sample-template.csv',
-#     mime='text/csv')
-
-#     # Read uploaded CSV file
-#     if uploaded_file is not None:
-#         test_data = read_csv(uploaded_file)
-#         expander = st.expander("🔎 Click to view uploaded file content")
-#         with expander:
-#             st.write(test_data)
-#             # Create a submit button
-#         submit = st.button("Check  Quality 🔬",type="primary")
-
-#         # If the submit button is clicked, make the prediction
-#         if submit:
-#             process_data=processed_data(test_data)
-#             quality_checker=predict_fresh_water_quality(process_data)
-#             output(process_data,quality_checker)
-#             # Print the prediction
-#             st.balloons()
-#     else:
-#         st.info('Download the above template and fill in your data.')
-#         # Set page footer 
-#     st.write("\n\nMade with :heart: by Team Humanoids 🤖")
-#     st.write("Intel® oneAPI Hackathon for Open Innovation 2023.")
 
 if __name__ == '__main__':
     main()
