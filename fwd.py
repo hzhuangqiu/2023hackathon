@@ -8,10 +8,10 @@ patch_sklearn()
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from models import LGBM, ModelBase
+from models import ModelBase, LGBM, XGB, CatBoost
 
 
-class WaterQuality:
+class FWD:
     def __init__(self, show_report=True):
         self.show_report = show_report
     
@@ -59,7 +59,6 @@ class WaterQuality:
         '''
         if isinstance(model, ModelBase):    
             self.model = model
-            self.model.load()
         elif isinstance(model, str):
             with open(model, 'rb') as model_file:
                 self.model = pickle.load(model_file)
@@ -100,10 +99,12 @@ class WaterQuality:
 
 
 if __name__ == "__main__":
-    system = WaterQuality()
+    system = FWD()
     system.load_data("preprocessed_dataset.csv")
     model = LGBM()
-    system.load_data(model)
+    # model = XGB()
+    # model = CatBoost()
+    system.load_model(model)
     system.train()
     # system.save_model()
     # system.load_model('test.pk')
