@@ -3,3 +3,4 @@ lightgbm
 modin[dask]
 scikit-learn-intelex
 optuna
+streamlit
