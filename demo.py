@@ -18,10 +18,13 @@ import daal4py as d4p
 
 import warnings
 
+import pickle
+
 warnings.filterwarnings("ignore")
 
 import os
 
+model_name_map = {"lightgbm": "LGBM", "xgboost": "XGBoost", "catboost": "CatBoost"}
 
 def preprocess_data(raw_data_path: str, dest_data_path: str) -> pd.DataFrame:
     if os.path.exists(dest_data_path):
@@ -98,7 +101,7 @@ def get_model(model_type: str) -> Any:
             subsample=0.8680019204265281,
         )
     else:
-        raise KeyError(f"Unknow Model Type: {mode_type}")
+        raise KeyError(f"Unknow Model Type: {model_type}")
 
 
 def convert_to_d4p(model: Any, model_type: str) -> Any:
@@ -109,7 +112,7 @@ def convert_to_d4p(model: Any, model_type: str) -> Any:
     elif model_type == "catboost":
         return d4p.get_gbt_model_from_catboost(model)
     else:
-        raise KeyError(f"Unknow Model Type: {mode_type}")
+        raise KeyError(f"Unknow Model Type: {model_type}")
 
 
 def save_model(model, file="native_binary.txt"):
@@ -167,8 +170,14 @@ if __name__ == "__main__":
             )
         )
 
+        # with open(model_name_map[model_type]+'.pkl', 'wb') as f:
+        #     pickle.dump(model, f)
+
         print("Convert the trained model to oneAPI...")
         daal_model = convert_to_d4p(model, model_type)
+
+        # with open(model_name_map[model_type]+'_oneAPI.pkl', 'wb') as f:
+        #     pickle.dump(daal_model, f)
 
         print(f"Start inferring ({model_type} && oneAPI)...")
         begin = time.time()
