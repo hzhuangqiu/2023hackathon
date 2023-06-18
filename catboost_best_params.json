@@ -1,0 +1,9 @@
+{
+  "depth": 11,
+  "n_estimators": 1800,
+  "max_bin": 322,
+  "min_data_in_leaf": 1,
+  "l2_leaf_reg": 0.4421314590378351,
+  "subsample": 0.8680019204265281
+}
+

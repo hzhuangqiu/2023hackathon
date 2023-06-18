@@ -23,6 +23,7 @@ import pickle
 warnings.filterwarnings("ignore")
 
 import os
+import json
 
 model_name_map = {"lightgbm": "LGBM", "xgboost": "XGBoost", "catboost": "CatBoost"}
 
@@ -51,58 +52,37 @@ def preprocess_data(raw_data_path: str, dest_data_path: str) -> pd.DataFrame:
         data.to_csv(dest_data_path, index=False)
         return data
 
-
 def get_model(model_type: str) -> Any:
-    if model_type == "lightgbm":
-        return LGBMClassifier(
-            objective="binary",
-            n_estimators=10000,
-            learning_rate=0.27099464626835873,
-            num_leaves=1300,
-            max_depth=12,
-            min_data_in_leaf=1000,
-            reg_alpha=0.1786310325541849,
-            reg_lambda=1.3163677959254036,
-            min_gain_to_split=5.158405494258322,
-            bagging_fraction=0.8,
-            bagging_freq=1,
-            feature_fraction=0.9,
-            verbosity=-1,
-            eval_metric="binary_logloss",
-            early_stopping_rounds=100,
-        )
-    elif model_type == "xgboost":
-        return XGBClassifier(
-            max_depth=9,
-            objective="binary:logistic",
-            use_label_encoder=False,
-            eval_metric="logloss",
-            early_stopping_rounds=30,
-            min_child_weight=6,
-            gamma=3,
-            learning_rate=1.0,
-            subsample=0.9955784740143707,
-            colsample_bytree=0.8233654438141474,
-            reg_alpha=9.85268289322318,
-            reg_lambda=57.976004599564774,
-            n_estimators=800,
-        )
-    elif model_type == "catboost":
-        return CatBoostClassifier(
-            depth=11,
-            objective="Logloss",
-            learning_rate=1.0,
-            eval_metric="Logloss",
-            early_stopping_rounds=30,
-            n_estimators=1800,
-            max_bin=322,
-            min_data_in_leaf=1,
-            l2_leaf_reg=0.4421314590378351,
-            subsample=0.8680019204265281,
-        )
-    else:
+    try:
+        with open(model_type + "_best_params.json", "r") as f:
+            params = json.load(f)
+        if model_type == "lightgbm":
+            return LGBMClassifier(
+                objective="binary",
+                verbosity=-1,
+                eval_metric="binary_logloss",
+                early_stopping_rounds=100,
+                **params
+            )
+        elif model_type == "xgboost":
+            return XGBClassifier(
+                objective="binary:logistic",
+                eval_metric="logloss",
+                use_label_encoder=False,
+                early_stopping_rounds=30,
+                learning_rate=1.0,
+                **params
+            )
+        elif model_type == "catboost":
+            return CatBoostClassifier(
+                objective="Logloss",
+                eval_metric="Logloss",
+                early_stopping_rounds=30,
+                learning_rate=1.0,
+                **params
+            )
+    except FileNotFoundError:
         raise KeyError(f"Unknow Model Type: {model_type}")
-
 
 def convert_to_d4p(model: Any, model_type: str) -> Any:
     if model_type == "lightgbm":

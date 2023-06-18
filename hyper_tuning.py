@@ -26,6 +26,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import os
+import json
 
 import numpy as np
 
@@ -188,6 +189,8 @@ if __name__ == "__main__":
     print(f"Best params:")
     for key, value in study.best_params.items():
         print(f"\t{key}={value}")
+    with open("lightgbm_best_params.json", "w") as f:
+        json.dump(study.best_params, f)
 
     print("Start hyperparameter tuning (xgboost)...")
     study = optuna.create_study(direction="minimize", study_name="XGB Classifier")
@@ -197,6 +200,8 @@ if __name__ == "__main__":
     print(f"Best params:")
     for key, value in study.best_params.items():
         print(f"\t{key}={value}")
+    with open("xgboost_best_params.json", "w") as f:
+        json.dump(study.best_params, f)
 
     print("Start hyperparameter tuning (catboost)...")
     study = optuna.create_study(direction="minimize", study_name="CB Classifier")
@@ -206,3 +211,5 @@ if __name__ == "__main__":
     print(f"Best params:")
     for key, value in study.best_params.items():
         print(f"\t{key}={value}")
+    with open("catboost_best_params.json", "w") as f:
+        json.dump(study.best_params, f)

@@ -1,0 +1,13 @@
+{
+  "n_estimators": 10000,
+  "learning_rate": 0.27099464626835873,
+  "num_leaves": 1300,
+  "max_depth": 12,
+  "min_data_in_leaf": 1000,
+  "reg_alpha": 0.1786310325541849,
+  "reg_lambda": 1.3163677959254036,
+  "min_gain_to_split": 5.158405494258322,
+  "bagging_fraction": 0.8,
+  "bagging_freq": 1,
+  "feature_fraction": 0.9
+}
