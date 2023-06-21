@@ -8,8 +8,7 @@
 
 ## 功能说明
 
-1. 经过讨论，由于训练需要上传的数据量过大，因此目前仅支持推理(后续如果有时间也可以支持微调)
-2. 模型可以选择`LGBM`、`XGBoost`、`CatBoost`三种，通过`.pkl`文件载入内存
+1. 模型可以选择`LGBM`、`XGBoost`、`CatBoost`三种，通过`.pkl`文件载入内存
     1. 目前仅有`LGBM`模型，其他模型待上传(通过`pickle.dump()`导出为`<model_name>.pkl`)
     2. 目前仅有`LGBM`模型支持`oneAPI`后端，其他模型待上传(通过`pickle.dump()`导出为`<model_name>_oneAPI.pkl`)
 3. 支持两种推理后端：`Sklearn`与`Intel oneAPI daal4py`

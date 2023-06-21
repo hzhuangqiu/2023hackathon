@@ -141,7 +141,7 @@ def csv_uploader():
 
 def user_choose_model():
     model_metadata_choose_col = st.columns(2)
-    model_backend_map = {'Intel oneAPI daal4py': 'oneAPI', 'Sklearn': 'Sklearn'}
+    model_backend_map = {'Sklearn': 'Sklearn', 'Intel oneAPI daal4py': 'oneAPI'}
     model_name = model_metadata_choose_col[0].selectbox('Choose your model', ('LGBM', 'XGBoost', 'CatBoost'))
     model_backend_choice = model_metadata_choose_col[1].selectbox('Choose your model backend', model_backend_map.keys())
     model_backend = model_backend_map[model_backend_choice]
